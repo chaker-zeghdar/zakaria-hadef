@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Flame,
   GraduationCap,
+  LayoutGrid,
   Megaphone,
   MessageSquareText,
   Plus,
@@ -22,8 +23,12 @@ const workStyles = [
     icon: MessageSquareText,
     blurb: "Interview-style cuts that keep the speaker sharp and the message tight.",
     videos: [
-      { id: 1, title: "Project 1", youtubeId: "Is4D_5i8l3E" },
-      { id: 7, title: "Project 7", youtubeId: "Xx3JEkNUAqk" },
+      { id: 1, title: "Digex Agency - Magna", youtubeId: "Is4D_5i8l3E" },
+      {
+        id: 7,
+        title: "Magna Travel - Video 01",
+        youtubeId: "Xx3JEkNUAqk",
+      },
       { id: 5, title: "Project 5", youtubeId: null },
     ],
   },
@@ -33,8 +38,16 @@ const workStyles = [
     icon: Megaphone,
     blurb: "Agency and product promos with confident branding and clean pacing.",
     videos: [
-      { id: 2, title: "Project 2", youtubeId: "Xx3JEkNUAqk" },
-      { id: 4, title: "Project 4", youtubeId: "WtVxTUzMQvQ" },
+      {
+        id: 2,
+        title: "Magna Travel - Video 01",
+        youtubeId: "Xx3JEkNUAqk",
+      },
+      {
+        id: 4,
+        title: "CirrusSign Academy",
+        youtubeId: "WtVxTUzMQvQ",
+      },
       { id: 6, title: "Project 6", youtubeId: null },
     ],
   },
@@ -44,8 +57,16 @@ const workStyles = [
     icon: Flame,
     blurb: "Scroll-stopping shorts built to hook in the first three seconds.",
     videos: [
-      { id: 3, title: "Project 3", youtubeId: "f6vNFFeHKck" },
-      { id: 8, title: "Project 8", youtubeId: "Xx3JEkNUAqk" },
+      {
+        id: 3,
+        title: "Digex Agency - Show You",
+        youtubeId: "f6vNFFeHKck",
+      },
+      {
+        id: 8,
+        title: "Magna Travel - Video 01",
+        youtubeId: "Xx3JEkNUAqk",
+      },
       { id: 10, title: "Project 10", youtubeId: null },
     ],
   },
@@ -54,26 +75,62 @@ const workStyles = [
     label: "Explainers",
     icon: GraduationCap,
     blurb: "Design and marketing lessons, edited so the idea lands fast.",
-    videos: [{ id: 9, title: "Project 9", youtubeId: "Xx3JEkNUAqk" }],
+    videos: [
+      {
+        id: 9,
+        title: "Magna Travel - Video 01",
+        youtubeId: "Xx3JEkNUAqk",
+      },
+    ],
   },
 ];
 
+// "All" aggregates every video (tagged with its own style); real style
+// tabs follow. Each video carries a `tag` for its card label so the
+// mixed "All" view still shows the correct style per card.
+const workTabs = [
+  {
+    id: "all",
+    label: "All",
+    icon: LayoutGrid,
+    blurb: "Every cut in one place — across all styles.",
+    videos: workStyles.flatMap((s) =>
+      s.videos.map((v) => ({ ...v, tag: s.label }))
+    ),
+  },
+  ...workStyles.map((s) => ({
+    ...s,
+    videos: s.videos.map((v) => ({ ...v, tag: s.label })),
+  })),
+];
+
 export default function Work() {
-  const [activeId, setActiveId] = useState(workStyles[0].id);
+  const [activeId, setActiveId] = useState(workTabs[0].id);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
+  const [tabsCanPrev, setTabsCanPrev] = useState(false);
+  const [tabsCanNext, setTabsCanNext] = useState(false);
   const scrollerRef = useRef(null);
   const tabsRef = useRef(null);
   const rafRef = useRef(0);
+  const tabsRafRef = useRef(0);
   const reduced = useReducedMotion();
 
-  const active = workStyles.find((s) => s.id === activeId);
+  const active = workTabs.find((s) => s.id === activeId);
 
   const updateArrows = () => {
     const el = scrollerRef.current;
     if (!el) return;
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  };
+
+  const updateTabArrows = () => {
+    const el = tabsRef.current;
+    if (!el) return;
+    const overflow = el.scrollWidth - el.clientWidth;
+    setTabsCanPrev(overflow > 4 && el.scrollLeft > 4);
+    setTabsCanNext(overflow > 4 && el.scrollLeft < overflow - 4);
   };
 
   // Coverflow: scale/dim each card by its distance from the strip center.
@@ -144,16 +201,39 @@ export default function Work() {
     };
   }, [activeId]);
 
+  // Track tab-strip scroll position so the swipe hints know their direction.
+  useEffect(() => {
+    const strip = tabsRef.current;
+    if (!strip) return;
+    const onScroll = () => {
+      cancelAnimationFrame(tabsRafRef.current);
+      tabsRafRef.current = requestAnimationFrame(updateTabArrows);
+    };
+    strip.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    updateTabArrows();
+    return () => {
+      cancelAnimationFrame(tabsRafRef.current);
+      strip.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   // Keep the active tab centered when the tab strip overflows (mobile).
   useEffect(() => {
     const strip = tabsRef.current;
-    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
+    if (!strip || strip.scrollWidth <= strip.clientWidth) {
+      updateTabArrows();
+      return;
+    }
     const tab = strip.querySelector(".work-tab.active");
     if (!tab) return;
     strip.scrollTo({
       left: tab.offsetLeft + tab.offsetWidth / 2 - strip.clientWidth / 2,
       behavior: reduced ? "auto" : "smooth",
     });
+    const t = setTimeout(updateTabArrows, 400);
+    return () => clearTimeout(t);
   }, [activeId, reduced]);
 
   const scrollByCard = (dir) => {
@@ -164,15 +244,21 @@ export default function Work() {
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
+  const scrollTabs = (dir) => {
+    const el = tabsRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * (el.clientWidth * 0.7), behavior: "smooth" });
+  };
+
   const onTabsKeyDown = (e) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
     e.preventDefault();
-    const idx = workStyles.findIndex((s) => s.id === activeId);
+    const idx = workTabs.findIndex((s) => s.id === activeId);
     const next =
       e.key === "ArrowRight"
-        ? (idx + 1) % workStyles.length
-        : (idx - 1 + workStyles.length) % workStyles.length;
-    setActiveId(workStyles[next].id);
+        ? (idx + 1) % workTabs.length
+        : (idx - 1 + workTabs.length) % workTabs.length;
+    setActiveId(workTabs[next].id);
   };
 
   const trackVariants = {
@@ -211,7 +297,7 @@ export default function Work() {
             ref={tabsRef}
             onKeyDown={onTabsKeyDown}
           >
-            {workStyles.map((s) => {
+            {workTabs.map((s) => {
               const Icon = s.icon;
               const isActive = s.id === activeId;
               return (
@@ -240,6 +326,26 @@ export default function Work() {
               );
             })}
           </div>
+
+          {/* Mobile-only swipe affordances for the tab strip (tap to scroll) */}
+          <button
+            type="button"
+            className={`work-tab-hint left${tabsCanPrev ? " show" : ""}`}
+            onClick={() => scrollTabs(-1)}
+            tabIndex={-1}
+            aria-label="Scroll styles left"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <button
+            type="button"
+            className={`work-tab-hint right${tabsCanNext ? " show" : ""}`}
+            onClick={() => scrollTabs(1)}
+            tabIndex={-1}
+            aria-label="Scroll styles right"
+          >
+            <ChevronRight size={14} />
+          </button>
         </div>
 
         <div className="work-blurb-slot reveal" style={{ "--reveal-delay": "0.15s" }}>
@@ -277,6 +383,26 @@ export default function Work() {
             <ChevronRight size={18} />
           </button>
 
+          {/* Mobile-only swipe affordances (arrows are hidden below 720px) */}
+          <button
+            type="button"
+            className={`work-swipe-hint left${canPrev ? " show" : ""}`}
+            onClick={() => scrollByCard(-1)}
+            tabIndex={-1}
+            aria-label="Previous video"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            type="button"
+            className={`work-swipe-hint right${canNext ? " show" : ""}`}
+            onClick={() => scrollByCard(1)}
+            tabIndex={-1}
+            aria-label="Next video"
+          >
+            <ChevronRight size={16} />
+          </button>
+
           <div className="work-scroller" ref={scrollerRef}>
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.div
@@ -312,7 +438,7 @@ export default function Work() {
                           </span>
                           <span className="work-empty-title">Your next video</span>
                           <span className="work-empty-sub">
-                            Reserved for a new {active.label.toLowerCase()} cut
+                            Reserved for a new {v.tag.toLowerCase()} cut
                           </span>
                         </div>
                       )}
@@ -320,7 +446,7 @@ export default function Work() {
                         <span className="work-card-title">
                           {v.youtubeId ? v.title : "Coming soon"}
                         </span>
-                        <span className="work-card-tag">{active.label}</span>
+                        <span className="work-card-tag">{v.tag}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -332,9 +458,112 @@ export default function Work() {
       </div>
       <style>{`
         .work-controls {
+          position: relative;
           display: flex;
           justify-content: center;
           margin-top: 32px;
+        }
+        /* Tab-strip swipe hints — mirror the video pills, mobile-only */
+        .work-tab-hint {
+          display: none;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 6;
+          width: 26px;
+          height: 26px;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: rgba(20, 17, 40, 0.85);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(139, 123, 255, 0.4);
+          color: var(--accent);
+          opacity: 0;
+          transition: opacity 0.25s ease-out;
+          pointer-events: none;
+          cursor: pointer;
+          padding: 0;
+          font: inherit;
+        }
+        .work-tab-hint.show {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .work-tab-hint.show:hover,
+        .work-tab-hint.show:active {
+          background: rgba(139, 123, 255, 0.25);
+          animation-play-state: paused;
+        }
+        .work-tab-hint.left {
+          left: 26px;
+          animation: swipeNudgeLeft 1.8s ease-in-out infinite;
+        }
+        .work-tab-hint.right {
+          right: 26px;
+          animation: swipeNudgeRight 1.8s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .work-tab-hint.left,
+          .work-tab-hint.right {
+            animation: none;
+          }
+        }
+        /* Swipe-hint pills — only surfaced on mobile (see media query) */
+        .work-swipe-hint {
+          display: none;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 6;
+          width: 34px;
+          height: 34px;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background: rgba(20, 17, 40, 0.75);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(139, 123, 255, 0.4);
+          color: var(--accent);
+          opacity: 0;
+          transition: opacity 0.25s ease-out;
+          pointer-events: none;
+          cursor: pointer;
+          padding: 0;
+          font: inherit;
+        }
+        .work-swipe-hint.show {
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .work-swipe-hint.show:hover,
+        .work-swipe-hint.show:active {
+          background: rgba(139, 123, 255, 0.25);
+          animation-play-state: paused;
+        }
+        .work-swipe-hint.left {
+          left: 6px;
+          animation: swipeNudgeLeft 1.8s ease-in-out infinite;
+        }
+        .work-swipe-hint.right {
+          right: 6px;
+          animation: swipeNudgeRight 1.8s ease-in-out infinite;
+        }
+        @keyframes swipeNudgeLeft {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(-4px); }
+        }
+        @keyframes swipeNudgeRight {
+          0%, 100% { transform: translateY(-50%) translateX(0); }
+          50% { transform: translateY(-50%) translateX(4px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .work-swipe-hint.left,
+          .work-swipe-hint.right {
+            animation: none;
+          }
         }
         .work-tabs {
           display: flex;
@@ -594,12 +823,34 @@ export default function Work() {
             border-right: 0;
             padding-inline: 24px;
             scroll-padding-inline: 24px;
+            /* Fade the edges so partially-hidden tabs read as "more this way" */
+            mask-image: linear-gradient(
+              90deg,
+              transparent 0,
+              #000 28px,
+              #000 calc(100% - 28px),
+              transparent 100%
+            );
+            -webkit-mask-image: linear-gradient(
+              90deg,
+              transparent 0,
+              #000 28px,
+              #000 calc(100% - 28px),
+              transparent 100%
+            );
           }
           .work-tabs::-webkit-scrollbar {
             display: none;
           }
           .work-tab {
             flex: 0 0 auto;
+          }
+          /* Show the swipe-hint pills where the desktop arrows are hidden */
+          .work-swipe-hint {
+            display: flex;
+          }
+          .work-tab-hint {
+            display: flex;
           }
         }
       `}</style>
