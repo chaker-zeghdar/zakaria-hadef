@@ -43,7 +43,19 @@ export default function Hero() {
           className="hero-art reveal"
           style={{ "--reveal-delay": "0.25s" }}
           aria-hidden="true"
-        />
+        >
+          <span className="vf-corner vf-tl" />
+          <span className="vf-corner vf-tr" />
+          <span className="vf-corner vf-bl" />
+          <span className="vf-corner vf-br" />
+          <span className="vf-cross" />
+          <span className="vf-rec">
+            <span className="vf-rec-dot" />
+            REC
+          </span>
+          <span className="vf-tc">00:00:24:18</span>
+          <span className="vf-label">A-CAM · 4K</span>
+        </div>
       </div>
       <style>{`
         .hero {
@@ -127,6 +139,7 @@ export default function Hero() {
           transform: translateX(3px);
         }
         .hero-art {
+          position: relative;
           aspect-ratio: 4 / 5;
           border-radius: var(--radius-lg);
           background: radial-gradient(
@@ -140,6 +153,114 @@ export default function Hero() {
           -webkit-backdrop-filter: blur(14px);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
             0 20px 50px rgba(0, 0, 0, 0.35);
+          font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        }
+        .vf-corner {
+          position: absolute;
+          width: 22px;
+          height: 22px;
+          border: 2px solid rgba(255, 255, 255, 0.35);
+        }
+        .vf-tl {
+          top: 16px;
+          left: 16px;
+          border-right: 0;
+          border-bottom: 0;
+        }
+        .vf-tr {
+          top: 16px;
+          right: 16px;
+          border-left: 0;
+          border-bottom: 0;
+        }
+        .vf-bl {
+          bottom: 16px;
+          left: 16px;
+          border-right: 0;
+          border-top: 0;
+        }
+        .vf-br {
+          bottom: 16px;
+          right: 16px;
+          border-left: 0;
+          border-top: 0;
+        }
+        .vf-cross {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 18px;
+          height: 18px;
+          transform: translate(-50%, -50%);
+          opacity: 0.45;
+        }
+        .vf-cross::before,
+        .vf-cross::after {
+          content: "";
+          position: absolute;
+          background: rgba(255, 255, 255, 0.6);
+        }
+        .vf-cross::before {
+          left: 50%;
+          top: 0;
+          width: 1px;
+          height: 100%;
+        }
+        .vf-cross::after {
+          top: 50%;
+          left: 0;
+          height: 1px;
+          width: 100%;
+        }
+        .vf-rec {
+          position: absolute;
+          top: 20px;
+          right: 52px;
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          color: rgba(255, 255, 255, 0.8);
+        }
+        .vf-rec-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #ff4d5e;
+          box-shadow: 0 0 8px rgba(255, 77, 94, 0.7);
+          animation: recBlink 1.6s steps(1) infinite;
+        }
+        .vf-tc {
+          position: absolute;
+          bottom: 22px;
+          left: 52px;
+          font-size: 12px;
+          letter-spacing: 0.14em;
+          color: rgba(255, 255, 255, 0.55);
+        }
+        .vf-label {
+          position: absolute;
+          top: 21px;
+          left: 52px;
+          font-size: 10px;
+          letter-spacing: 0.22em;
+          color: rgba(255, 255, 255, 0.45);
+        }
+        @keyframes recBlink {
+          0%,
+          60% {
+            opacity: 1;
+          }
+          61%,
+          100% {
+            opacity: 0.15;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .vf-rec-dot {
+            animation: none;
+          }
         }
         @media (max-width: 860px) {
           .hero-grid {

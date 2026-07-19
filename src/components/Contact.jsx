@@ -1,3 +1,5 @@
+// Set a real profile URL to activate a link; "#" leaves it as an
+// inactive placeholder (won't hijack scroll until a URL is added).
 const socials = [
   { label: "Instagram", href: "#" },
   { label: "Behance", href: "#" },
@@ -16,11 +18,21 @@ export default function Contact() {
         </a>
         <p className="phone">+213 549 66 66 16</p>
         <div className="social-row">
-          {socials.map((s) => (
-            <a key={s.label} href={s.href} className="social-link">
-              {s.label}
-            </a>
-          ))}
+          {socials.map((s) => {
+            const active = s.href && s.href !== "#";
+            return (
+              <a
+                key={s.label}
+                href={active ? s.href : undefined}
+                target={active ? "_blank" : undefined}
+                rel={active ? "noopener noreferrer" : undefined}
+                aria-disabled={active ? undefined : "true"}
+                className={`social-link${active ? "" : " disabled"}`}
+              >
+                {s.label}
+              </a>
+            );
+          })}
         </div>
       </div>
       <style>{`
@@ -28,8 +40,14 @@ export default function Contact() {
           padding-bottom: 48px;
         }
         .contact-inner {
+          position: relative;
           text-align: center;
-          background: var(--bg-soft);
+          background: radial-gradient(
+              circle at 50% 0%,
+              rgba(139, 123, 255, 0.12),
+              transparent 60%
+            ),
+            rgba(20, 17, 40, 0.5);
           border: 1px solid var(--card-border);
           border-radius: var(--radius-lg);
           padding: 64px 24px;
@@ -37,6 +55,10 @@ export default function Contact() {
           flex-direction: column;
           align-items: center;
           gap: 20px;
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 24px 60px rgba(0, 0, 0, 0.4);
         }
         .email-pill {
           display: inline-flex;
@@ -72,9 +94,24 @@ export default function Contact() {
           border-radius: var(--radius-full);
           border: 1px solid var(--card-border);
           color: var(--text-dim);
+          cursor: pointer;
+          transition: color 0.2s, border-color 0.2s;
         }
         .social-link:hover {
           color: var(--text);
+          border-color: rgba(139, 123, 255, 0.4);
+        }
+        .social-link:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+        .social-link.disabled {
+          cursor: default;
+          opacity: 0.55;
+        }
+        .social-link.disabled:hover {
+          color: var(--text-dim);
+          border-color: var(--card-border);
         }
       `}</style>
     </section>

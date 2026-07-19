@@ -63,6 +63,7 @@ export default function Work() {
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const scrollerRef = useRef(null);
+  const tabsRef = useRef(null);
   const rafRef = useRef(0);
   const reduced = useReducedMotion();
 
@@ -143,6 +144,18 @@ export default function Work() {
     };
   }, [activeId]);
 
+  // Keep the active tab centered when the tab strip overflows (mobile).
+  useEffect(() => {
+    const strip = tabsRef.current;
+    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
+    const tab = strip.querySelector(".work-tab.active");
+    if (!tab) return;
+    strip.scrollTo({
+      left: tab.offsetLeft + tab.offsetWidth / 2 - strip.clientWidth / 2,
+      behavior: reduced ? "auto" : "smooth",
+    });
+  }, [activeId, reduced]);
+
   const scrollByCard = (dir) => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -195,6 +208,7 @@ export default function Work() {
             className="work-tabs"
             role="tablist"
             aria-label="Work styles"
+            ref={tabsRef}
             onKeyDown={onTabsKeyDown}
           >
             {workStyles.map((s) => {
@@ -563,6 +577,29 @@ export default function Work() {
           }
           .work-card {
             width: min(72vw, 300px);
+          }
+          .work-controls {
+            /* Let the strip run edge to edge so tabs can scroll fully. */
+            margin-inline: -24px;
+          }
+          .work-tabs {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            max-width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            border-radius: 0;
+            border-left: 0;
+            border-right: 0;
+            padding-inline: 24px;
+            scroll-padding-inline: 24px;
+          }
+          .work-tabs::-webkit-scrollbar {
+            display: none;
+          }
+          .work-tab {
+            flex: 0 0 auto;
           }
         }
       `}</style>

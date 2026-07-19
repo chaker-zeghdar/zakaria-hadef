@@ -112,6 +112,10 @@ export default function Navbar() {
         .navbar-item.active {
           color: var(--accent);
         }
+        .navbar-item:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
         .navbar-item-icon {
           display: none;
           align-items: center;
