@@ -1,0 +1,741 @@
+:root {
+  --animation-iteration: infinite;
+  --bg: #0a0918;
+  --bg-soft: #120f28;
+  --card: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text: #f5f5fa;
+  --text-dim: #9c99b5;
+  --accent: #8b7bff;
+  --accent-2: #5b7dff;
+  --gradient: linear-gradient(120deg, var(--accent), var(--accent-2));
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-full: 999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at 20% 0%, #1a1440 0%, var(--bg) 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.gradient-text {
+  color: var(--accent);
+}
+
+.section-title {
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.services-sub {
+  margin-bottom: 12px;
+}
+
+section {
+  padding: 72px 0;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.1;
+}
+
+p {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- */
+/* Utility classes (used by ui components)                          */
+/* ---------------------------------------------------------------- */
+
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.whitespace-pre {
+  white-space: pre;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* Opening reveal (drop-in, same motion as the cosmic text)         */
+/* ---------------------------------------------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(-26px);
+  transition: opacity 0.7s ease-out var(--reveal-delay, 0s),
+    transform 0.7s ease-out var(--reveal-delay, 0s);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Text morph                                                       */
+/* ---------------------------------------------------------------- */
+
+.text-morph {
+  display: inline-flex;
+  gap: 0.5px;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- */
+/* Orbiting circles                                                 */
+/* ---------------------------------------------------------------- */
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateY(calc(var(--radius) * 1px))
+      rotate(-360deg);
+  }
+}
+
+.orbit-path {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.orbiting-circle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transform-origin: center;
+  animation: orbit calc(var(--duration) * 1s) linear infinite;
+  animation-delay: calc(var(--delay) * 1000ms);
+  will-change: transform;
+}
+
+.orbiting-circle.reverse {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbiting-circle {
+    animation-play-state: paused;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Radial orbital timeline (services)                               */
+/* ---------------------------------------------------------------- */
+
+@keyframes orbitalPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes orbitalPing {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.orbital-container {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.orbital-plane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.orbital-core {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: orbitalPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.orbital-core-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: orbitalPing 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.orbital-core-ring-1 {
+  width: 80px;
+  height: 80px;
+  opacity: 0.7;
+}
+
+.orbital-core-ring-2 {
+  width: 96px;
+  height: 96px;
+  border-color: rgba(255, 255, 255, 0.1);
+  opacity: 0.5;
+  animation-delay: 0.5s;
+}
+
+.orbital-core-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.orbital-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.orbital-node {
+  position: absolute;
+  cursor: pointer;
+  transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.orbital-node:focus-visible {
+  outline: none;
+}
+
+.orbital-node:focus-visible .orbital-node-circle {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.orbital-node-glow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(139, 123, 255, 0.28) 0%,
+    rgba(139, 123, 255, 0) 70%
+  );
+}
+
+.orbital-node-glow.pulsing {
+  animation: orbitalPulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.orbital-node-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease-out;
+}
+
+.orbital-node-circle.expanded {
+  background: #fff;
+  color: #0a0918;
+  border-color: #fff;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  transform: scale(1.35);
+}
+
+.orbital-node-circle.related {
+  background: rgba(255, 255, 255, 0.5);
+  color: #0a0918;
+  border-color: #fff;
+  animation: orbitalPulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.orbital-node-title {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease-out;
+}
+
+.orbital-node-title.expanded {
+  color: #fff;
+  transform: translateX(-50%) scale(1.15);
+}
+
+.orbital-card {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
+  background: rgba(10, 9, 24, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  cursor: default;
+  text-align: left;
+}
+
+.orbital-card-connector {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.orbital-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.orbital-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(139, 123, 255, 0.15);
+  color: #b3a7ff;
+  border: 1px solid rgba(139, 123, 255, 0.35);
+}
+
+.orbital-card-num {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.orbital-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.orbital-card-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.orbital-card-divider {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.orbital-energy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.orbital-energy-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orbital-energy-value {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+.orbital-energy-track {
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.orbital-energy-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--gradient);
+}
+
+.orbital-related-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+}
+
+.orbital-related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.orbital-related-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  padding: 7px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.orbital-related-btn:hover,
+.orbital-related-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .orbital-container {
+    height: 540px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbital-core,
+  .orbital-core-ring,
+  .orbital-node-glow.pulsing,
+  .orbital-node-circle.related {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Cosmic parallax background                                       */
+/* ---------------------------------------------------------------- */
+
+.cosmic-parallax-container {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cosmic-stars,
+.cosmic-stars-medium,
+.cosmic-stars-large {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.cosmic-stars {
+  width: 1px;
+  height: 1px;
+  animation: animStar 50s linear var(--animation-iteration);
+}
+
+.cosmic-stars-medium {
+  width: 2px;
+  height: 2px;
+  animation: animStar 100s linear var(--animation-iteration);
+}
+
+.cosmic-stars-large {
+  width: 3px;
+  height: 3px;
+  animation: animStar 150s linear var(--animation-iteration);
+}
+
+/* Duplicate field one loop-length below for a seamless wrap */
+.cosmic-stars::after,
+.cosmic-stars-medium::after,
+.cosmic-stars-large::after {
+  content: "";
+  position: absolute;
+  top: 2000px;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+  box-shadow: inherit;
+}
+
+/* Planet horizon: soft accent glow rising from the bottom edge */
+#horizon {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 180vw;
+  height: 60vh;
+  transform: translate(-50%, 78%);
+  border-radius: 50%;
+}
+
+#horizon .glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 -10px 44px 6px rgba(139, 123, 255, 0.32),
+    0 -32px 140px 36px rgba(91, 125, 255, 0.16);
+}
+
+#earth {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 180vw;
+  height: 60vh;
+  transform: translate(-50%, 78.5%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 12%, #171238 0%, var(--bg) 65%);
+}
+
+/* Optional headline mode (used when head/text props are passed) */
+#title {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(40px, 8vw, 90px);
+  font-weight: 800;
+  letter-spacing: 40px;
+  padding-left: 40px;
+  color: var(--text);
+  animation: animGravity 8s ease-in-out var(--animation-iteration);
+}
+
+#subtitle {
+  position: absolute;
+  top: 55%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(14px, 2vw, 22px);
+  letter-spacing: 0.4em;
+  color: var(--text-dim);
+}
+
+#subtitle span {
+  display: inline-block;
+  opacity: 0;
+}
+
+#subtitle .subtitle-part-1 {
+  animation: animDont 8s ease-in-out var(--animation-iteration);
+}
+
+#subtitle .subtitle-part-2 {
+  animation: animLet 8s ease-in-out var(--animation-iteration);
+}
+
+#subtitle .subtitle-part-3 {
+  animation: animGo 8s ease-in-out var(--animation-iteration);
+}
+
+@keyframes animStar {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
+}
+
+@keyframes animGravity {
+  0% {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  30%,
+  80% {
+    letter-spacing: 40px;
+    padding-left: 40px;
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  92%,
+  100% {
+    letter-spacing: 35px;
+    padding-left: 35px;
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+@keyframes animDont {
+  0%,
+  15% {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  35%,
+  80% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  92%,
+  100% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+@keyframes animLet {
+  0%,
+  25% {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  45%,
+  80% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  92%,
+  100% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+@keyframes animGo {
+  0%,
+  35% {
+    transform: translateY(-26px);
+    opacity: 0;
+  }
+  55%,
+  80% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+  92%,
+  100% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-stars,
+  .cosmic-stars-medium,
+  .cosmic-stars-large,
+  #title,
+  #subtitle span {
+    animation: none;
+  }
+
+  #subtitle span {
+    opacity: 1;
+  }
+}
