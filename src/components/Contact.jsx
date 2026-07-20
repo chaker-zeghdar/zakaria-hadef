@@ -47,7 +47,7 @@ export default function Contact() {
     <section id="contact" className="contact">
       <div className="container contact-inner reveal">
         <h2 className="section-title">
-          Let&apos;s work <span className="gradient-text">together</span>
+          Let&apos;s work <span className="gradient-text">Together</span>
         </h2>
         <a className="email-pill" href="mailto:zhadef15@gmail.com">
           ✉ zhadef15@gmail.com
