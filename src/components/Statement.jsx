@@ -10,7 +10,7 @@ const tools = [
   { label: "Ae", name: "After Effects", bg: "#00005B", fg: "#9999FF" },
   { label: "Ps", name: "Photoshop", bg: "#001E36", fg: "#31A8FF" },
   { label: "Lr", name: "Lightroom", bg: "#001E36", fg: "#31A8FF" },
-  { label: "Ai", name: "Illustrator", bg: "#ff7700", fg: "#fff4ca" },
+  //{ label: "Ai", name: "Illustrator", bg: "#ff7700", fg: "#fff4ca" },
 ];
 
 function ToolTile({ label, name, bg, fg }) {
