@@ -44,6 +44,11 @@ export default function Hero() {
           style={{ "--reveal-delay": "0.25s" }}
           aria-hidden="true"
         >
+                      <img
+              src="/images/zaki.png"
+              alt="Hero art"
+              className="hero-art-image"
+            />
           <span className="vf-corner vf-tl" />
           <span className="vf-corner vf-tr" />
           <span className="vf-corner vf-bl" />
@@ -51,7 +56,6 @@ export default function Hero() {
           <span className="vf-cross" />
           <span className="vf-rec">
             <span className="vf-rec-dot" />
-            REC
           </span>
           <span className="vf-tc">00:00:24:18</span>
           <span className="vf-label">A-CAM · 4K</span>
@@ -59,7 +63,7 @@ export default function Hero() {
       </div>
       <style>{`
         .hero {
-          padding-top: 48px;
+          padding-top: 80px;
         }
         .hero-grid {
           display: grid;
@@ -140,8 +144,9 @@ export default function Hero() {
         }
         .hero-art {
           position: relative;
-          aspect-ratio: 4 / 5;
+          aspect-ratio: 1 / 1;
           border-radius: var(--radius-lg);
+          overflow: hidden;
           background: radial-gradient(
               circle at 30% 18%,
               rgba(139, 123, 255, 0.16),
@@ -155,11 +160,23 @@ export default function Hero() {
             0 20px 50px rgba(0, 0, 0, 0.35);
           font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
         }
+        .hero-art-image {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center top;
+          display: block;
+          transform: scale(1.03);
+        }
+
         .vf-corner {
           position: absolute;
           width: 22px;
           height: 22px;
           border: 2px solid rgba(255, 255, 255, 0.35);
+          z-index: 1;
         }
         .vf-tl {
           top: 16px;
@@ -222,6 +239,7 @@ export default function Hero() {
           font-size: 11px;
           letter-spacing: 0.2em;
           color: rgba(255, 255, 255, 0.8);
+          z-index: 2;
         }
         .vf-rec-dot {
           width: 7px;
