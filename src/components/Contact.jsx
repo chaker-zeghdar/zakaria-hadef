@@ -36,10 +36,10 @@ const YouTubeIcon = () => (
 // `brand` is the app's signature color, used on the icon and hover.
 const socials = [
   { label: "Instagram", href: "https://www.instagram.com/a_sq_z/", icon: InstagramIcon, brand: "#E4405F" },
-  { label: "LinkedIn", href: "#", icon: LinkedInIcon, brand: "#0A66C2" },
-  { label: "WhatsApp", href: "#", icon: WhatsAppIcon, brand: "#25D366" },
-  { label: "Behance", href: "#", icon: BehanceIcon, brand: "#1769FF" },
-  { label: "YouTube", href: "#", icon: YouTubeIcon, brand: "#FF0000" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/zakariahadef/", icon: LinkedInIcon, brand: "#0A66C2" },
+  { label: "WhatsApp", href: "https://wa.me/213676743343", icon: WhatsAppIcon, brand: "#25D366" },
+  { label: "Behance", href: "https://www.behance.net/zakaria_hadef", icon: BehanceIcon, brand: "#1769FF" },
+  { label: "YouTube", href: "https://www.youtube.com/@ta3alamma3an", icon: YouTubeIcon, brand: "#FF0000" },
 ];
 
 export default function Contact() {
