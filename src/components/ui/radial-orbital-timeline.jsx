@@ -1,5 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { ArrowRight, Link } from "lucide-react";
+
+// Degrees per second — matches the original 0.3deg per 50ms tick.
+const SPIN_SPEED = 6;
+// How long the click-to-centre swing takes.
+const CENTER_MS = 700;
 
 /**
  * Interactive orbital display: items orbit a glowing core; clicking a node
@@ -10,7 +15,6 @@ import { ArrowRight, Link } from "lucide-react";
  */
 export default function RadialOrbitalTimeline({ timelineData }) {
   const [expandedItems, setExpandedItems] = useState({});
-  const [rotationAngle, setRotationAngle] = useState(0);
   const [autoRotate, setAutoRotate] = useState(true);
   const [pulseEffect, setPulseEffect] = useState({});
   const [activeNodeId, setActiveNodeId] = useState(null);
@@ -18,6 +22,75 @@ export default function RadialOrbitalTimeline({ timelineData }) {
   const containerRef = useRef(null);
   const orbitRef = useRef(null);
   const nodeRefs = useRef({});
+
+  // The orbit is animated by writing transforms straight to the DOM on each
+  // frame. Driving it through React state instead meant a full re-render of
+  // every node 20x a second, which is what made phones stutter.
+  const angleRef = useRef(0);
+  const radiusRef = useRef(200);
+  const expandedIdRef = useRef(null);
+  const autoRotateRef = useRef(true);
+  const reducedRef = useRef(false);
+  const visibleRef = useRef(true);
+  const tweenRef = useRef(null);
+  const rafRef = useRef(0);
+  const runningRef = useRef(false);
+
+  radiusRef.current = radius;
+  autoRotateRef.current = autoRotate;
+  expandedIdRef.current = activeNodeId;
+
+  const positionNodes = () => {
+    const total = timelineData.length;
+    const r = radiusRef.current;
+    const base = angleRef.current;
+    timelineData.forEach((item, index) => {
+      const el = nodeRefs.current[item.id];
+      if (!el) return;
+      const rad = (((index / total) * 360 + base) % 360) * (Math.PI / 180);
+      const expanded = expandedIdRef.current === item.id;
+      el.style.transform = `translate3d(${r * Math.cos(rad)}px, ${
+        r * Math.sin(rad)
+      }px, 0)`;
+      el.style.zIndex = expanded
+        ? "200"
+        : String(Math.round(100 + 50 * Math.cos(rad)));
+      el.style.opacity = expanded
+        ? "1"
+        : String(
+            Math.max(0.4, Math.min(1, 0.4 + 0.6 * ((1 + Math.sin(rad)) / 2)))
+          );
+    });
+  };
+
+  const shouldSpin = () =>
+    autoRotateRef.current && !reducedRef.current && visibleRef.current;
+
+  const startLoop = () => {
+    if (runningRef.current) return;
+    runningRef.current = true;
+    let last = performance.now();
+    const tick = (now) => {
+      const dt = Math.min(now - last, 100);
+      last = now;
+      const tween = tweenRef.current;
+      if (tween) {
+        const t = Math.min((now - tween.start) / CENTER_MS, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        angleRef.current = tween.from + (tween.to - tween.from) * eased;
+        if (t >= 1) tweenRef.current = null;
+      } else if (shouldSpin()) {
+        angleRef.current = (angleRef.current + (dt * SPIN_SPEED) / 1000) % 360;
+      }
+      positionNodes();
+      if (tweenRef.current || shouldSpin()) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        runningRef.current = false;
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  };
 
   const handleContainerClick = (e) => {
     if (e.target === containerRef.current || e.target === orbitRef.current) {
@@ -31,7 +104,11 @@ export default function RadialOrbitalTimeline({ timelineData }) {
   const centerViewOnNode = (nodeId) => {
     const nodeIndex = timelineData.findIndex((item) => item.id === nodeId);
     const targetAngle = (nodeIndex / timelineData.length) * 360;
-    setRotationAngle(270 - targetAngle);
+    const from = angleRef.current;
+    // Swing the short way round rather than unwinding a full turn.
+    let delta = ((270 - targetAngle - from) % 360 + 540) % 360 - 180;
+    tweenRef.current = { from, to: from + delta, start: performance.now() };
+    startLoop();
   };
 
   const toggleItem = (id) => {
@@ -61,17 +138,41 @@ export default function RadialOrbitalTimeline({ timelineData }) {
     });
   };
 
+  // Keep the DOM in sync after any React re-render (expand, resize, …).
+  useLayoutEffect(() => {
+    positionNodes();
+  });
+
   useEffect(() => {
-    const reduced = window.matchMedia(
+    reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (!autoRotate || reduced) return;
 
-    const rotationTimer = setInterval(() => {
-      setRotationAngle((prev) => Number(((prev + 0.3) % 360).toFixed(3)));
-    }, 50);
+    // Don't burn frames spinning an orbit that's scrolled off screen.
+    const el = containerRef.current;
+    let observer;
+    if (el && "IntersectionObserver" in window) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          visibleRef.current = entry.isIntersecting;
+          if (entry.isIntersecting) startLoop();
+        },
+        { threshold: 0 }
+      );
+      observer.observe(el);
+    }
 
-    return () => clearInterval(rotationTimer);
+    startLoop();
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      runningRef.current = false;
+      if (observer) observer.disconnect();
+    };
+  }, []);
+
+  // Resume spinning when a card is closed.
+  useEffect(() => {
+    if (autoRotate) startLoop();
   }, [autoRotate]);
 
   useEffect(() => {
@@ -83,22 +184,6 @@ export default function RadialOrbitalTimeline({ timelineData }) {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-
-  const calculateNodePosition = (index, total) => {
-    const angle = ((index / total) * 360 + rotationAngle) % 360;
-    const radian = (angle * Math.PI) / 180;
-
-    const x = radius * Math.cos(radian);
-    const y = radius * Math.sin(radian);
-
-    const zIndex = Math.round(100 + 50 * Math.cos(radian));
-    const opacity = Math.max(
-      0.4,
-      Math.min(1, 0.4 + 0.6 * ((1 + Math.sin(radian)) / 2))
-    );
-
-    return { x, y, zIndex, opacity };
-  };
 
   const isRelatedToActive = (itemId) => {
     if (!activeNodeId) return false;
@@ -124,8 +209,7 @@ export default function RadialOrbitalTimeline({ timelineData }) {
           style={{ width: radius * 2, height: radius * 2 }}
         ></div>
 
-        {timelineData.map((item, index) => {
-          const position = calculateNodePosition(index, timelineData.length);
+        {timelineData.map((item) => {
           const isExpanded = expandedItems[item.id];
           const isRelated = isRelatedToActive(item.id);
           const isPulsing = pulseEffect[item.id];
@@ -137,11 +221,6 @@ export default function RadialOrbitalTimeline({ timelineData }) {
               key={item.id}
               ref={(el) => (nodeRefs.current[item.id] = el)}
               className="orbital-node"
-              style={{
-                transform: `translate(${position.x}px, ${position.y}px)`,
-                zIndex: isExpanded ? 200 : position.zIndex,
-                opacity: isExpanded ? 1 : position.opacity,
-              }}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleItem(item.id);

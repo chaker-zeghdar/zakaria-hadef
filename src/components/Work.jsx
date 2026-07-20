@@ -8,7 +8,6 @@ import {
   LayoutGrid,
   Megaphone,
   MessageSquareText,
-  Plus,
 } from "lucide-react";
 
 /**
@@ -29,7 +28,6 @@ const workStyles = [
         title: "Magna Travel - Video 01",
         youtubeId: "Xx3JEkNUAqk",
       },
-      { id: 5, title: "Project 5", youtubeId: null },
     ],
   },
   {
@@ -48,7 +46,6 @@ const workStyles = [
         title: "CirrusSign Academy",
         youtubeId: "WtVxTUzMQvQ",
       },
-      { id: 6, title: "Project 6", youtubeId: null },
     ],
   },
   {
@@ -72,7 +69,6 @@ const workStyles = [
         title: "Magna Travel - Video 01",
         youtubeId: "Xx3JEkNUAqk",
       },
-      { id: 10, title: "Project 10", youtubeId: null },
     ],
   },
   {
@@ -99,6 +95,8 @@ const workTabs = [
     label: "All",
     icon: LayoutGrid,
     blurb: "Every cut in one place — across all styles.",
+    // Endless reel: past the last card loops back to the first.
+    loop: true,
     videos: workStyles.flatMap((s) =>
       s.videos.map((v) => ({ ...v, tag: s.label }))
     ),
@@ -109,23 +107,78 @@ const workTabs = [
   })),
 ];
 
+// How many times a looping tab repeats its videos. Three gives a full copy
+// of runway either side of the viewer, so even a hard fling never reaches
+// the real end before the position is silently shifted back.
+const LOOP_COPIES = 3;
+
 export default function Work() {
   const [activeId, setActiveId] = useState(workTabs[0].id);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const [tabsCanPrev, setTabsCanPrev] = useState(false);
   const [tabsCanNext, setTabsCanNext] = useState(false);
+  const [playingKey, setPlayingKey] = useState(null);
   const scrollerRef = useRef(null);
   const tabsRef = useRef(null);
   const rafRef = useRef(0);
   const tabsRafRef = useRef(0);
+  const settleRef = useRef(0);
   const reduced = useReducedMotion();
 
   const active = workTabs.find((s) => s.id === activeId);
 
+  // A looping tab renders its videos LOOP_COPIES times back to back. The
+  // viewer always sits in the middle copy; once they drift a full copy in
+  // either direction we shift the scroll position back by that same amount.
+  // The content either side is identical, so the jump is invisible and the
+  // reel feels endless in both directions.
+  const loopVideos = active.loop
+    ? Array.from({ length: LOOP_COPIES }, (_, copy) =>
+        active.videos.map((v, i) => ({ ...v, key: `${copy}-${i}-${v.id}` }))
+      ).flat()
+    : active.videos.map((v, i) => ({ ...v, key: `${i}-${v.id}` }));
+
+  // The scroll listener is registered once, so it reads the loop state
+  // from refs rather than a stale closure over `active`.
+  const loopRef = useRef(false);
+  const loopLenRef = useRef(0);
+  loopRef.current = Boolean(active?.loop);
+  loopLenRef.current = active?.videos?.length || 0;
+
+  // Shift back by exactly one copy once the viewer drifts a full copy away.
+  const wrapLoop = () => {
+    const el = scrollerRef.current;
+    if (!el || !loopRef.current) return;
+    const n = loopLenRef.current;
+    if (!n) return;
+    const tracks = [...el.querySelectorAll(".work-track")];
+    const track =
+      tracks.find((tr) => getComputedStyle(tr).position !== "absolute") ||
+      tracks[0];
+    if (!track) return;
+    const cards = track.querySelectorAll(".work-card");
+    if (cards.length < n * 2) return;
+    const setWidth = cards[n].offsetLeft - cards[0].offsetLeft;
+    if (setWidth <= 0) return;
+    const anchor =
+      cards[n].offsetLeft + cards[n].offsetWidth / 2 - el.clientWidth / 2;
+    if (el.scrollLeft <= anchor - setWidth + 1) {
+      el.scrollLeft += setWidth;
+    } else if (el.scrollLeft >= anchor + setWidth - 1) {
+      el.scrollLeft -= setWidth;
+    }
+  };
+
   const updateArrows = () => {
     const el = scrollerRef.current;
     if (!el) return;
+    // A looping reel can always go both ways — the ends wrap around.
+    if (loopRef.current) {
+      setCanPrev(true);
+      setCanNext(true);
+      return;
+    }
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
   };
@@ -166,7 +219,12 @@ export default function Work() {
     if (!track) return;
     const cards = track.querySelectorAll(".work-card");
     if (!cards.length) return;
-    const mid = cards[Math.floor((cards.length - 1) / 2)];
+    // A looping reel opens on the first card of the middle copy, leaving a
+    // full copy of runway in each direction.
+    const mid =
+      loopRef.current && cards.length >= loopLenRef.current * 2
+        ? cards[loopLenRef.current]
+        : cards[Math.floor((cards.length - 1) / 2)];
     el.scrollLeft = mid.offsetLeft + mid.offsetWidth / 2 - el.clientWidth / 2;
   };
 
@@ -179,11 +237,19 @@ export default function Work() {
         updateArrows();
         applyScales();
       });
+      // Rebase only once scrolling has settled, so the jump never fights an
+      // in-flight smooth scroll or momentum fling.
+      clearTimeout(settleRef.current);
+      settleRef.current = setTimeout(() => {
+        wrapLoop();
+        applyScales();
+      }, 120);
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(rafRef.current);
+      clearTimeout(settleRef.current);
       el.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
@@ -418,39 +484,56 @@ export default function Work() {
                 animate="visible"
                 exit="exit"
               >
-                {active.videos.map((v) => (
+                {loopVideos.map((v) => (
                   <motion.div
-                    key={v.id}
+                    key={v.key}
                     className="work-card"
                     variants={cardVariants}
                   >
                     <div className="work-card-inner">
-                      {v.youtubeId ? (
-                        <div className="work-thumb">
+                      <div className="work-thumb">
+                        {playingKey === v.key ? (
                           <iframe
                             className="work-iframe"
-                            src={`https://www.youtube.com/embed/${v.youtubeId}`}
+                            src={`https://www.youtube.com/embed/${v.youtubeId}?autoplay=1&rel=0`}
                             title={v.title}
-                            loading="lazy"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                           />
-                        </div>
-                      ) : (
-                        <div className="work-thumb empty">
-                          <span className="work-plus" aria-hidden="true">
-                            <Plus size={20} />
-                          </span>
-                          <span className="work-empty-title">Your next video</span>
-                          <span className="work-empty-sub">
-                            Reserved for a new {v.tag.toLowerCase()} cut
-                          </span>
-                        </div>
-                      )}
+                        ) : (
+                          // Poster + play button: the bare embed paints YouTube's
+                          // title/channel bar over the thumbnail, and no parameter
+                          // removes it. Loading the player only on click keeps the
+                          // frame clean — and off the network until it's wanted.
+                          <button
+                            type="button"
+                            className="work-play"
+                            onClick={() => setPlayingKey(v.key)}
+                            aria-label={`Play ${v.title}`}
+                          >
+                            <img
+                              className="work-poster"
+                              src={`https://i.ytimg.com/vi/${v.youtubeId}/oardefault.jpg`}
+                              onError={(e) => {
+                                e.currentTarget.src = `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`;
+                              }}
+                              alt=""
+                              loading="lazy"
+                            />
+                            <span className="work-play-icon" aria-hidden="true">
+                              <svg viewBox="0 0 68 48" width="54" height="38">
+                                <path
+                                  fill="#f00"
+                                  d="M66.5 7.7a8.6 8.6 0 0 0-6-6.1C55.2 0 34 0 34 0S12.8 0 7.5 1.6a8.6 8.6 0 0 0-6 6.1C0 13 0 24 0 24s0 11 1.5 16.3a8.6 8.6 0 0 0 6 6.1C12.8 48 34 48 34 48s21.2 0 26.5-1.6a8.6 8.6 0 0 0 6-6.1C68 35 68 24 68 24s0-11-1.5-16.3z"
+                                />
+                                <path fill="#fff" d="M27 34V14l18 10-18 10z" />
+                              </svg>
+                            </span>
+                          </button>
+                        )}
+                      </div>
                       <div className="work-meta">
-                        <span className="work-card-title">
-                          {v.youtubeId ? v.title : "Coming soon"}
-                        </span>
+                        <span className="work-card-title">{v.title}</span>
                         <span className="work-card-tag">{v.tag}</span>
                       </div>
                     </div>
@@ -748,39 +831,40 @@ export default function Work() {
           height: 100%;
           border: 0;
         }
-        .work-thumb.empty {
+        .work-play {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          padding: 0;
+          border: 0;
+          background: #000;
+          cursor: pointer;
+          display: block;
+        }
+        .work-poster {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .work-play-icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          border-style: dashed;
-          border-color: rgba(139, 123, 255, 0.35);
-          background: rgba(139, 123, 255, 0.04);
-          text-align: center;
-          padding: 20px;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+          transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+          opacity: 0.92;
         }
-        .work-plus {
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(139, 123, 255, 0.12);
-          border: 1px solid rgba(139, 123, 255, 0.35);
-          color: var(--accent);
+        .work-play:hover .work-play-icon {
+          transform: translate(-50%, -50%) scale(1.1);
+          opacity: 1;
         }
-        .work-empty-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--text);
-        }
-        .work-empty-sub {
-          font-size: 12px;
-          color: var(--text-dim);
-          max-width: 180px;
-          line-height: 1.5;
+        .work-play:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: -2px;
         }
         .work-meta {
           display: flex;

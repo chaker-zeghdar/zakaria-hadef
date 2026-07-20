@@ -322,7 +322,9 @@ p {
 .orbital-node {
   position: absolute;
   cursor: pointer;
-  transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Position/opacity are written per frame by the orbit's rAF loop — a CSS
+     transition here would start a new 700ms tween on every one of them. */
+  will-change: transform;
 }
 
 .orbital-node:focus-visible {
