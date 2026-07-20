@@ -62,6 +62,11 @@ const workStyles = [
         title: "Digex Agency - Show You",
         youtubeId: "f6vNFFeHKck",
       },
+       {
+        id: 3,
+        title: "Digex Agency - Show You",
+        youtubeId: "f6vNFFeHKck",
+      },
       {
         id: 8,
         title: "Magna Travel - Video 01",
