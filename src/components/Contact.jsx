@@ -35,7 +35,7 @@ const YouTubeIcon = () => (
 // inactive placeholder (won't hijack scroll until a URL is added).
 // `brand` is the app's signature color, used on the icon and hover.
 const socials = [
-  { label: "Instagram", href: "#", icon: InstagramIcon, brand: "#E4405F" },
+  { label: "Instagram", href: "https://www.instagram.com/a_sq_z/", icon: InstagramIcon, brand: "#E4405F" },
   { label: "LinkedIn", href: "#", icon: LinkedInIcon, brand: "#0A66C2" },
   { label: "WhatsApp", href: "#", icon: WhatsAppIcon, brand: "#25D366" },
   { label: "Behance", href: "#", icon: BehanceIcon, brand: "#1769FF" },
