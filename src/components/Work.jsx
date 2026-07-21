@@ -24,10 +24,15 @@ const workStyles = [
     videos: [
       { id: 1, title: "Digex Agency - Magna", youtubeId: "Is4D_5i8l3E" },
       {
-        id: 7,
+        id: 1,
         title: "Magna Travel - Video 01",
         youtubeId: "Xx3JEkNUAqk",
       },
+      // {
+      //   id: 3,
+      //   title: "",
+      //   youtubeId: "",
+      // },      
     ],
   },
   {
@@ -69,11 +74,11 @@ const workStyles = [
         title: "GDGC & ARCO STORE - Devs4Devs",
         youtubeId: "mcbx6BXdf2U",
       },
-      {
-        id: 3,
-        title: "",
-        youtubeId: "",
-      },
+      // {
+      //   id: 3,
+      //   title: "",
+      //   youtubeId: "",
+      // },
       {
         id: 4,
         title: "Digex Agency - Parfio",
