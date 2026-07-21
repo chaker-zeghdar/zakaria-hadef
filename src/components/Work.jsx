@@ -92,6 +92,16 @@ const workStyles = [
         title: "IftarTech - HDD or SSD or NVME ?",
         youtubeId: "hmTYls8HAQw",
       },
+      {
+        id: 4,
+        title: "GDGC - Did you know that",
+        youtubeId: "wayTTIVrg2Y",
+      },
+      {
+        id: 5,
+        title: "Cortec - من اكبر الاخطاء الشائعة عند إقتناء الحاسوب",
+        youtubeId: "urvVPrpO3ZY",
+      },
     ],
   },
 ];
