@@ -83,9 +83,14 @@ const workStyles = [
         youtubeId: "1j1MOh04DPg",
       },
       {
-        id: 9,
-        title: "Magna Travel - Video 01",
-        youtubeId: "Xx3JEkNUAqk",
+        id: 2,
+        title: "Div to Dev - Machine Learning",
+        youtubeId: "waKHufP5XI4",
+      },
+       {
+        id: 3,
+        title: "IftarTech - HDD or SSD or NVME ?",
+        youtubeId: "hmTYls8HAQw",
       },
     ],
   },
