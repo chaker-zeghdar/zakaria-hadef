@@ -71,8 +71,8 @@ const workStyles = [
       },
       {
         id: 3,
-        title: "Magna Travel - Video",
-        youtubeId: "Xx3JEkNUAqk",
+        title: "",
+        youtubeId: "",
       },
       {
         id: 4,
