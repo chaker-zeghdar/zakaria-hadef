@@ -78,6 +78,11 @@ const workStyles = [
     blurb: "Design and marketing lessons, edited so the idea lands fast.",
     videos: [
       {
+        id: 1,
+        title: "IftarTech - Windows or Linux ?",
+        youtubeId: "1j1MOh04DPg",
+      },
+      {
         id: 9,
         title: "Magna Travel - Video 01",
         youtubeId: "Xx3JEkNUAqk",
