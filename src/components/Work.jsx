@@ -55,17 +55,17 @@ const workStyles = [
     blurb: "Scroll-stopping shorts built to hook in the first three seconds.",
     videos: [
       {
-        id: 3,
+        id: 1,
         title: "Digex Agency - Show You",
         youtubeId: "f6vNFFeHKck",
       },
        {
-        id: 3,
-        title: "Digex Agency - Show Youuuuuuuu",
-        youtubeId: "f6vNFFeHKck",
+        id: 2,
+        title: "GDGC & ARCO STORE - Devs4Devs",
+        youtubeId: "mcbx6BXdf2U",
       },
       {
-        id: 8,
+        id: 3,
         title: "Magna Travel - Video 01",
         youtubeId: "Xx3JEkNUAqk",
       },
