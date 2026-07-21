@@ -74,11 +74,11 @@ const workStyles = [
         title: "GDGC & ARCO STORE - Devs4Devs",
         youtubeId: "mcbx6BXdf2U",
       },
-      // {
-      //   id: 3,
-      //   title: "",
-      //   youtubeId: "",
-      // },
+      {
+        id: 3,
+        title: "Zizou Adventure - Keniya",
+        youtubeId: "WHVWLsHj0QI",
+      },
       {
         id: 4,
         title: "Digex Agency - Parfio",
