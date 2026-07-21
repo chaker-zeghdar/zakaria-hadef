@@ -37,14 +37,19 @@ const workStyles = [
     blurb: "Agency and product promos with confident branding and clean pacing.",
     videos: [
       {
-        id: 2,
-        title: "Magna Travel - Video 01",
-        youtubeId: "Xx3JEkNUAqk",
+        id: 1,
+        title: "CirrusSign Academy - Video Editing course",
+        youtubeId: "WtVxTUzMQvQ",
       },
       {
-        id: 4,
-        title: "CirrusSign Academy",
-        youtubeId: "WtVxTUzMQvQ",
+        id: 2,
+        title: "Lova - Promo",
+        youtubeId: "-nN3BEaTEvI",
+      },
+      {
+        id: 3,
+        title: "Lova - Pharma Pub",
+        youtubeId: "gP1-YXGgNSs",
       },
     ],
   },
@@ -66,8 +71,13 @@ const workStyles = [
       },
       {
         id: 3,
-        title: "Magna Travel - Video 01",
+        title: "Magna Travel - Video",
         youtubeId: "Xx3JEkNUAqk",
+      },
+      {
+        id: 4,
+        title: "Digex Agency - Parfio",
+        youtubeId: "PS1JReoKygE",
       },
     ],
   },
@@ -101,6 +111,11 @@ const workStyles = [
         id: 5,
         title: "Cortec - من اكبر الاخطاء الشائعة عند إقتناء الحاسوب",
         youtubeId: "urvVPrpO3ZY",
+      },
+      {
+        id: 6,
+        title: "Lova Sante",
+        youtubeId: "Vr8i_fDBBsk",
       },
     ],
   },
