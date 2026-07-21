@@ -61,7 +61,7 @@ const workStyles = [
       },
        {
         id: 3,
-        title: "Digex Agency - Show You",
+        title: "Digex Agency - Show Youuuuuuuu",
         youtubeId: "f6vNFFeHKck",
       },
       {
