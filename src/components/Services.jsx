@@ -37,7 +37,7 @@ const services = [
   },
   {
     id: 4,
-    title: "Photography",
+    title: "Videography",
     date: "04",
     category: "Capture",
     icon: Camera,
