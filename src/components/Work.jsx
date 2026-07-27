@@ -22,17 +22,13 @@ const workStyles = [
     icon: MessageSquareText,
     blurb: "Interview-style cuts that keep the speaker sharp and the message tight.",
     videos: [
-      { id: 1, title: "Digex Agency - Magna", youtubeId: "Is4D_5i8l3E" },
       {
         id: 1,
-        title: "Magna Travel - Video 01",
-        youtubeId: "Xx3JEkNUAqk",
-      },
-      // {
-      //   id: 3,
-      //   title: "",
-      //   youtubeId: "",
-      // },      
+        title: "Chaker - Development Formation",
+        youtubeId: "aH0RZhsOOTo",
+      },  
+      { id: 2, title: "Magna Travel - Video 01", youtubeId: "Xx3JEkNUAqk" },
+      { id: 3, title: "Digex Agency - Magna", youtubeId: "Is4D_5i8l3E" },
     ],
   },
   {
