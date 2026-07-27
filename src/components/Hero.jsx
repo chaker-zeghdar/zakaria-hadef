@@ -6,7 +6,7 @@ export default function Hero() {
     <section id="about" className="hero">
       <div className="container hero-grid">
         <div>
-          <span className="tag reveal">Video editing &amp; photography</span>
+          <span className="tag reveal">Video editing &amp; Videography</span>
           <h1
             className="hero-title reveal"
             style={{ "--reveal-delay": "0.1s" }}
