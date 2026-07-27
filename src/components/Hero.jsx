@@ -20,7 +20,7 @@ export default function Hero() {
           >
             <span className="hero-role-prefix">I&apos;m a</span>
             <TextMorph
-              words={["Video Editor", "Photographer"]}
+              words={["Video Editor", "Photographer", "Videographer"]}
               interval={2600}
               charClassName="morph-char"
             />
