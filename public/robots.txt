@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://zakaria-hadef.vercel.app/sitemap.xml
