@@ -531,7 +531,7 @@ export default function Work() {
                         {playingKey === v.key ? (
                           <iframe
                             className="work-iframe"
-                            src={`https://www.youtube.com/embed/${v.youtubeId}?autoplay=1&rel=0`}
+                            src={`https://www.youtube-nocookie.com/embed/${v.youtubeId}?autoplay=1&rel=0`}
                             title={v.title}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
