@@ -52,7 +52,8 @@ export default function Contact() {
         <a className="email-pill" href="mailto:zhadef15@gmail.com">
           ✉ zhadef15@gmail.com
         </a>
-        <p className="phone">+213 549 66 66 16</p>
+        {/* <p className="phone">+213 549 66 66 16</p> */}
+        <a className="phone" href="tel:+213549666616">+213 549 66 66 16</a>
         <div className="social-row">
           {socials.map((s) => {
             const active = s.href && s.href !== "#";
