@@ -46,7 +46,7 @@ export default function Hero() {
         >
                       <img
               src="/images/zaki.png"
-              alt="Hero art"
+              alt="Zakaria Hadef — video editor and photographer"
               className="hero-art-image"
             />
           <span className="vf-corner vf-tl" />
