@@ -1,7 +1,5 @@
 # Zakaria Abd Eldjalil Hadef — Portfolio
 
-A React + Vite recreation of Framer portfolio (Zakaria Abd Eldjalil Hadef — Video Editor & Photographer).
-
 This was rebuilt from the live Framer design (not exported code — Framer doesn't support that), so it's a close visual match you can now edit freely as real code.
 
 ## Run it
